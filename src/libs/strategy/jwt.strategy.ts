@@ -18,6 +18,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       where: {
         id: payload.sub,
       },
+      select: {
+        id: true,
+        fullname: true,
+        email: true,
+      },
     });
     return user;
   }

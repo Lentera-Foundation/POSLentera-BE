@@ -1,8 +1,9 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { SigninDto, SignupDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '@prisma/client';
+import { TSignin, TSignup, TUpdatePassword } from 'src/libs/entities';
 
 @Injectable()
 export class AuthService {
@@ -10,7 +11,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
   ) {}
-  async signup(signupDto: SignupDto): Promise<any> {
+  async signup(signupDto: TSignup): Promise<object> {
     try {
       const hashedPass = await argon.hash(signupDto.password);
       const user = await this.prisma.user.create({
@@ -22,13 +23,24 @@ export class AuthService {
         },
       });
 
-      return user;
+      return {
+        message: 'Success',
+        data: {
+          id: user.id,
+          fullname: user.fullname,
+          email: user.email,
+          username: user.username,
+        },
+      };
     } catch (error) {
-      return `Error ${error}`;
+      return {
+        message: 'Error',
+        data: error,
+      };
     }
   }
 
-  async signin(signinDto: SigninDto) {
+  async signin(signinDto: TSignin) {
     const { email, password } = signinDto;
     const user = await this.prisma.user.findFirst({
       where: {
@@ -43,7 +55,12 @@ export class AuthService {
       throw new ForbiddenException('Credentials incorrect');
     }
 
-    return this.generateToken(user.id, user.email);
+    const accesToken = await this.generateToken(user.id, user.email);
+
+    return {
+      message: 'Success',
+      data: accesToken,
+    };
   }
 
   async generateToken(
@@ -55,12 +72,34 @@ export class AuthService {
       email,
     };
     const token = await this.jwt.signAsync(payload, {
-      expiresIn: '15m',
+      expiresIn: '999h',
       secret: process.env.JWT_SECRET,
     });
 
     return {
       access_token: token,
     };
+  }
+
+  async updatePassword(user: User, updatePasswordDto: TUpdatePassword) {
+    const { id } = user;
+    const { password } = updatePasswordDto;
+    const hashedPass = await argon.hash(password);
+
+    try {
+      await this.prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          password: hashedPass,
+        },
+      });
+      return {
+        message: 'Success',
+      };
+    } catch (error) {
+      return error;
+    }
   }
 }
