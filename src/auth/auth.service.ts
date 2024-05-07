@@ -1,15 +1,28 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { TSignin, TSignup, TUpdatePassword } from 'src/libs/entities';
+import {
+  emailTemplate,
+  TSignin,
+  TSignup,
+  TUpdatePassword,
+} from 'src/libs/entities';
+import { OtpDto } from 'src/libs/dto';
+import { expiredAt, generateOTP } from 'src/libs/utils';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
+    private readonly mailer: MailerService,
   ) {}
   async signup(signupDto: TSignup): Promise<object> {
     try {
@@ -78,6 +91,87 @@ export class AuthService {
 
     return {
       access_token: token,
+    };
+  }
+
+  async resendOtp(otpDto: OtpDto) {
+    const { email } = otpDto;
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email,
+      },
+      include: {
+        otp: true,
+      },
+    });
+
+    if (!user) {
+      throw new ForbiddenException('Credentials incorrect');
+    }
+
+    const data = await this.prisma.otp.upsert({
+      where: {
+        user_id: user.id,
+      },
+      update: {
+        otp: generateOTP(),
+        expiredAt: expiredAt(),
+      },
+      create: {
+        user_id: user.id,
+        otp: generateOTP(),
+        expiredAt: expiredAt(),
+      },
+    });
+
+    const html = emailTemplate(user.fullname, data.otp, 'verifikasi akun anda');
+
+    const send = await this.mailer.sendMail({
+      email,
+      subject: 'Reset Password',
+      html,
+    });
+
+    if (!send) {
+      throw new InternalServerErrorException('Failed to send email', send);
+    }
+
+    return {
+      message: 'Success',
+    };
+  }
+
+  async verifyOtp(otpDto: OtpDto) {
+    const { email, otp } = otpDto;
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      throw new ForbiddenException('Credentials incorrect');
+    }
+
+    const otpRecord = await this.prisma.otp.findFirst({
+      where: {
+        user_id: user.id,
+        otp: otp,
+      },
+    });
+
+    if (!otpRecord) {
+      throw new ForbiddenException('OTP Inccorect');
+    }
+    const now = expiredAt();
+    if (otpRecord.expiredAt > now) {
+      throw new ForbiddenException('OTP Expired');
+    }
+
+    return {
+      message: 'Success',
     };
   }
 

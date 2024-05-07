@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from 'src/libs/guard';
 import { GetUser } from 'src/libs/decorator';
-import { SigninDto, SignupDto, UpdatePasswordDto } from 'src/libs/dto';
+import { OtpDto, SigninDto, SignupDto, UpdatePasswordDto } from 'src/libs/dto';
 import { TSignin, TSignup, TUpdatePassword } from 'src/libs/entities';
 
 @ApiTags('Auth')
@@ -22,6 +22,24 @@ export class AuthController {
   @ApiBody({ type: SigninDto })
   signin(@Body() signinDto: TSignin) {
     return this.authService.signin(signinDto);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('resend-otp')
+  @HttpCode(200)
+  @ApiBearerAuth()
+  @ApiBody({ type: OtpDto })
+  resendOtp(@Body() otpDto: OtpDto) {
+    return this.authService.resendOtp(otpDto);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('verify-otp')
+  @HttpCode(200)
+  @ApiBearerAuth()
+  @ApiBody({ type: OtpDto })
+  verifyOtp(@Body() otpDto: OtpDto) {
+    return this.authService.verifyOtp(otpDto);
   }
 
   @UseGuards(JwtGuard)
