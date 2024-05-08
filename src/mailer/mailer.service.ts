@@ -23,7 +23,6 @@ export class MailerService {
     const transporter = this.mailTransport();
 
     const info = await transporter.sendMail({
-      from: process.env.DEFAULT_EMAIL,
       to: email,
       subject,
       html,
