@@ -54,133 +54,158 @@ export class AuthService {
   }
 
   async signin(signinDto: TSignin) {
-    const { email, password } = signinDto;
-    const user = await this.prisma.user.findFirst({
-      where: {
-        email,
-      },
-    });
-    if (!user) {
-      throw new ForbiddenException('Credentials incorrect');
-    }
-    const isMatches = await argon.verify(user.password, password);
-    if (!isMatches) {
-      throw new ForbiddenException('Credentials incorrect');
-    }
+    try {
+      const { email, password } = signinDto;
+      const user = await this.prisma.user.findFirst({
+        where: {
+          email,
+        },
+      });
+      if (!user) {
+        throw new ForbiddenException('Credentials incorrect');
+      }
+      const isMatches = await argon.verify(user.password, password);
+      if (!isMatches) {
+        throw new ForbiddenException('Credentials incorrect');
+      }
 
-    const accesToken = await this.generateToken(user.id, user.email);
+      const accesToken = await this.generateToken(user.id, user.email);
 
-    return {
-      message: 'Success',
-      data: accesToken,
-    };
+      return {
+        message: 'Success',
+        data: accesToken,
+      };
+    } catch (error) {
+      return {
+        message: 'Something went wrong!',
+      };
+    }
   }
 
-  async generateToken(
-    userId: number,
-    email: string,
-  ): Promise<{ access_token: string }> {
-    const payload = {
-      sub: userId,
-      email,
-    };
-    const token = await this.jwt.signAsync(payload, {
-      expiresIn: '999h',
-      secret: process.env.JWT_SECRET,
-    });
+  async generateToken(userId: number, email: string) {
+    try {
+      const payload = {
+        sub: userId,
+        email,
+      };
+      const token = await this.jwt.signAsync(payload, {
+        expiresIn: '999h',
+        secret: process.env.JWT_SECRET,
+      });
 
-    return {
-      access_token: token,
-    };
+      return {
+        access_token: token,
+      };
+    } catch (error) {
+      return {
+        message: 'Something went wrong!',
+      };
+    }
   }
 
   async resendOtp(otpDto: OtpDto) {
-    const { email } = otpDto;
+    try {
+      const { email } = otpDto;
 
-    const user = await this.prisma.user.findFirst({
-      where: {
+      const user = await this.prisma.user.findFirst({
+        where: {
+          email,
+        },
+        include: {
+          otp: true,
+        },
+      });
+
+      if (!user) {
+        throw new ForbiddenException('Credentials incorrect');
+      }
+
+      const data = await this.prisma.otp.upsert({
+        where: {
+          user_id: user.id,
+        },
+        update: {
+          otp: generateOTP(),
+          expiredAt: expiredAt(),
+        },
+        create: {
+          user_id: user.id,
+          otp: generateOTP(),
+          expiredAt: expiredAt(),
+        },
+      });
+
+      const html = emailTemplate(
+        user.fullname,
+        data.otp,
+        'verifikasi akun anda',
+      );
+
+      const send = await this.mailer.sendMail({
         email,
-      },
-      include: {
-        otp: true,
-      },
-    });
+        subject: 'Reset Password',
+        html,
+      });
 
-    if (!user) {
-      throw new ForbiddenException('Credentials incorrect');
+      if (!send) {
+        throw new InternalServerErrorException('Failed to send email', send);
+      }
+
+      return {
+        message: 'Success',
+      };
+    } catch (error) {
+      return {
+        message: 'Something went wrong',
+      };
     }
-
-    const data = await this.prisma.otp.upsert({
-      where: {
-        user_id: user.id,
-      },
-      update: {
-        otp: generateOTP(),
-        expiredAt: expiredAt(),
-      },
-      create: {
-        user_id: user.id,
-        otp: generateOTP(),
-        expiredAt: expiredAt(),
-      },
-    });
-
-    const html = emailTemplate(user.fullname, data.otp, 'verifikasi akun anda');
-
-    const send = await this.mailer.sendMail({
-      email,
-      subject: 'Reset Password',
-      html,
-    });
-
-    if (!send) {
-      throw new InternalServerErrorException('Failed to send email', send);
-    }
-
-    return {
-      message: 'Success',
-    };
   }
 
   async verifyOtp(otpDto: OtpDto) {
-    const { email, otp } = otpDto;
+    try {
+      const { email, otp } = otpDto;
 
-    const user = await this.prisma.user.findFirst({
-      where: {
-        email,
-      },
-    });
+      const user = await this.prisma.user.findFirst({
+        where: {
+          email,
+        },
+      });
 
-    if (!user) {
-      throw new ForbiddenException('Credentials incorrect');
+      if (!user) {
+        throw new ForbiddenException('Credentials incorrect');
+      }
+
+      const otpRecord = await this.prisma.otp.findFirst({
+        where: {
+          user_id: user.id,
+          otp: otp,
+        },
+      });
+
+      if (!otpRecord) {
+        throw new ForbiddenException('OTP Inccorect');
+      }
+      const now = expiredAt();
+      if (otpRecord.expiredAt > now) {
+        throw new ForbiddenException('OTP Expired');
+      }
+
+      return {
+        message: 'Success',
+      };
+    } catch (error) {
+      return {
+        message: 'Something went wrong',
+      };
     }
-
-    const otpRecord = await this.prisma.otp.findFirst({
-      where: {
-        user_id: user.id,
-        otp: otp,
-      },
-    });
-
-    if (!otpRecord) {
-      throw new ForbiddenException('OTP Inccorect');
-    }
-    const now = expiredAt();
-    if (otpRecord.expiredAt > now) {
-      throw new ForbiddenException('OTP Expired');
-    }
-
-    return {
-      message: 'Success',
-    };
   }
 
   async updatePassword(user: User, updatePasswordDto: TUpdatePassword) {
-    const { id } = user;
-    const { password } = updatePasswordDto;
-    const hashedPass = await argon.hash(password);
-
     try {
+      const { id } = user;
+      const { password } = updatePasswordDto;
+      const hashedPass = await argon.hash(password);
+
       await this.prisma.user.update({
         where: {
           id,
@@ -193,7 +218,9 @@ export class AuthService {
         message: 'Success',
       };
     } catch (error) {
-      return error;
+      return {
+        message: 'Something went wrong',
+      };
     }
   }
 }
