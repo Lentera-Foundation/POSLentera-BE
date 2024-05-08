@@ -14,6 +14,7 @@ async function bootstrap() {
     .setTitle('Lentera POS API')
     .setDescription('API for POS application')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
