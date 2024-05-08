@@ -24,19 +24,15 @@ export class AuthController {
     return this.authService.signin(signinDto);
   }
 
-  @UseGuards(JwtGuard)
   @Post('resend-otp')
   @HttpCode(200)
-  @ApiBearerAuth()
   @ApiBody({ type: OtpDto })
   resendOtp(@Body() otpDto: OtpDto) {
     return this.authService.resendOtp(otpDto);
   }
 
-  @UseGuards(JwtGuard)
   @Post('verify-otp')
   @HttpCode(200)
-  @ApiBearerAuth()
   @ApiBody({ type: OtpDto })
   verifyOtp(@Body() otpDto: OtpDto) {
     return this.authService.verifyOtp(otpDto);
