@@ -5,6 +5,13 @@ import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const url = process.env.CORS_ORIGIN;
+  const origin = url.includes(',') ? url.split(',') : url;
+  app.enableCors({
+    origin,
+    methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
+    credentials: true,
+  });
   const prefix = 'api';
 
   app.setGlobalPrefix(prefix);
