@@ -1,10 +1,18 @@
-import { Controller, Post, Body, UseGuards, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
-import { JwtGuard } from 'src/libs/guard';
-import { GetUser } from 'src/libs/decorator';
-import { OtpDto, SigninDto, SignupDto, UpdatePasswordDto } from 'src/libs/dto';
-import { TSignin, TSignup, TUpdatePassword } from 'src/libs/entities';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
+import {
+  ResendOtpDto,
+  SigninDto,
+  SignupDto,
+  UpdatePasswordDto,
+} from 'src/libs/dto';
+import {
+  TSigninRequest,
+  TSignupRequest,
+  TUpdatePasswordRequest,
+} from 'src/libs/entities';
+import { VerifyOtp } from 'src/libs/dto/auth/verify-otp.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -13,40 +21,34 @@ export class AuthController {
 
   @Post('signup')
   @ApiBody({ type: SignupDto })
-  signup(@Body() signupDto: TSignup) {
-    return this.authService.signup(signupDto);
+  signup(@Body() payload: TSignupRequest) {
+    return this.authService.signup(payload);
   }
 
   @Post('signin')
   @HttpCode(200)
   @ApiBody({ type: SigninDto })
-  signin(@Body() signinDto: TSignin) {
-    return this.authService.signin(signinDto);
+  signin(@Body() payload: TSigninRequest) {
+    return this.authService.signin(payload);
   }
 
   @Post('resend-otp')
   @HttpCode(200)
-  @ApiBody({ type: OtpDto })
-  resendOtp(@Body() otpDto: OtpDto) {
-    return this.authService.resendOtp(otpDto);
+  @ApiBody({ type: ResendOtpDto })
+  resendOtp(@Body() payload: ResendOtpDto) {
+    return this.authService.resendOtp(payload);
   }
 
   @Post('verify-otp')
   @HttpCode(200)
-  @ApiBody({ type: OtpDto })
-  verifyOtp(@Body() otpDto: OtpDto) {
-    return this.authService.verifyOtp(otpDto);
+  @ApiBody({ type: VerifyOtp })
+  verifyOtp(@Body() payload: VerifyOtp) {
+    return this.authService.verifyOtp(payload);
   }
 
-  @UseGuards(JwtGuard)
   @Post('update-password')
-  @HttpCode(200)
-  @ApiBearerAuth()
   @ApiBody({ type: UpdatePasswordDto })
-  updatePassword(
-    @GetUser() user: any,
-    @Body() updatePasswordDto: TUpdatePassword,
-  ) {
-    return this.authService.updatePassword(user, updatePasswordDto);
+  updatePassword(@Body() payload: TUpdatePasswordRequest) {
+    return this.authService.updatePassword(payload);
   }
 }

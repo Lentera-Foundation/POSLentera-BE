@@ -6,14 +6,19 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
 import {
   emailTemplate,
-  TSignin,
-  TSignup,
-  TUpdatePassword,
+  TSendOtpRequest,
+  TSendOtpResponse,
+  TSigninRequest,
+  TSigninResponse,
+  TSignupRequest,
+  TSignupResponse,
+  TUpdatePasswordRequest,
+  TUpdatePasswordResponse,
+  TVerifyOtpRequest,
+  TVerifyOtpResponse,
 } from 'src/libs/entities';
-import { OtpDto } from 'src/libs/dto';
 import { expiredAt, generateOTP } from 'src/libs/utils';
 import { MailerService } from 'src/mailer/mailer.service';
 
@@ -24,65 +29,79 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly mailer: MailerService,
   ) {}
-  async signup(signupDto: TSignup): Promise<object> {
+  async signup(payload: TSignupRequest): Promise<TSignupResponse> {
     try {
-      const hashedPass = await argon.hash(signupDto.password);
+      const { fullname, email, username, password } = payload;
+      const hashedPass = await argon.hash(password);
+
+      const isEmailExist = await this.prisma.user.findFirst({
+        where: {
+          email: email,
+        },
+      });
+
+      if (isEmailExist) {
+        throw new ForbiddenException('Email already exist');
+      }
+
       const user = await this.prisma.user.create({
         data: {
-          fullname: signupDto.fullname,
-          email: signupDto.email,
-          username: signupDto.username,
+          fullname: fullname,
+          email: email,
+          username: username,
           password: hashedPass,
         },
       });
 
       return {
         message: 'Success',
-        data: {
-          id: user.id,
-          fullname: user.fullname,
-          email: user.email,
-          username: user.username,
-        },
+        id: user.id,
+        fullname: user.fullname,
+        email: user.email,
+        username: user.username,
       };
     } catch (error) {
       return {
-        message: 'Error',
-        data: error,
+        message: 'Something went wrong',
+        error: error.message,
       };
     }
   }
 
-  async signin(signinDto: TSignin) {
+  async signin(payload: TSigninRequest): Promise<TSigninResponse> {
     try {
-      const { email, password } = signinDto;
+      const { email, password } = payload;
+
       const user = await this.prisma.user.findFirst({
         where: {
           email,
         },
       });
+
       if (!user) {
         throw new ForbiddenException('Credentials incorrect');
       }
+
       const isMatches = await argon.verify(user.password, password);
       if (!isMatches) {
         throw new ForbiddenException('Credentials incorrect');
       }
 
-      const accesToken = await this.generateToken(user.id, user.email);
+      const accessToken = await this.generateToken(user.id, user.email);
 
       return {
         message: 'Success',
-        data: accesToken,
+        access_token: accessToken,
       };
     } catch (error) {
       return {
-        message: 'Something went wrong!',
+        message: 'Something went wrong',
+        error: error.message,
       };
     }
   }
 
-  async generateToken(userId: number, email: string) {
+  async generateToken(userId: number, email: string): Promise<string> {
     try {
       const payload = {
         sub: userId,
@@ -93,19 +112,15 @@ export class AuthService {
         secret: process.env.JWT_SECRET,
       });
 
-      return {
-        access_token: token,
-      };
+      return token;
     } catch (error) {
-      return {
-        message: 'Something went wrong!',
-      };
+      return 'Something went wrong!';
     }
   }
 
-  async resendOtp(otpDto: OtpDto) {
+  async resendOtp(payload: TSendOtpRequest): Promise<TSendOtpResponse> {
     try {
-      const { email } = otpDto;
+      const { email } = payload;
 
       const user = await this.prisma.user.findFirst({
         where: {
@@ -157,13 +172,14 @@ export class AuthService {
     } catch (error) {
       return {
         message: 'Something went wrong',
+        error: error.message,
       };
     }
   }
 
-  async verifyOtp(otpDto: OtpDto) {
+  async verifyOtp(payload: TVerifyOtpRequest): Promise<TVerifyOtpResponse> {
     try {
-      const { email, otp } = otpDto;
+      const { email, otp } = payload;
 
       const user = await this.prisma.user.findFirst({
         where: {
@@ -196,30 +212,34 @@ export class AuthService {
     } catch (error) {
       return {
         message: 'Something went wrong',
+        error: error.message,
       };
     }
   }
 
-  async updatePassword(user: User, updatePasswordDto: TUpdatePassword) {
+  async updatePassword(
+    payload: TUpdatePasswordRequest,
+  ): Promise<TUpdatePasswordResponse> {
     try {
-      const { id } = user;
-      const { password } = updatePasswordDto;
+      const { email, password } = payload;
       const hashedPass = await argon.hash(password);
 
       await this.prisma.user.update({
         where: {
-          id,
+          email: email,
         },
         data: {
           password: hashedPass,
         },
       });
+
       return {
         message: 'Success',
       };
     } catch (error) {
       return {
         message: 'Something went wrong',
+        error: error.message,
       };
     }
   }
