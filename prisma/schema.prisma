@@ -38,7 +38,7 @@ model Product {
 model Category {
   id            Int       @id @default(autoincrement())
   category_name String
-  desc          String
+  desc          String?
   Product       Product[]
 }
 
