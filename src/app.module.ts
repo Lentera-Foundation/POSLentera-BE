@@ -9,13 +9,13 @@ import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
+    MailerModule,
+    CategoryModule,
     ProductModule,
     OrderModule,
     PrismaModule,
-    ConfigModule.forRoot({ isGlobal: true }),
-    MailerModule,
-    CategoryModule,
   ],
   controllers: [],
   providers: [],
