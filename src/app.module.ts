@@ -5,6 +5,7 @@ import { OrderModule } from './order/order.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { MailerModule } from './mailer/mailer.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { MailerModule } from './mailer/mailer.module';
     PrismaModule,
     ConfigModule.forRoot({ isGlobal: true }),
     MailerModule,
+    CategoryModule,
   ],
   controllers: [],
   providers: [],
