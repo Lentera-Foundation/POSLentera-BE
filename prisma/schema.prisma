@@ -28,7 +28,7 @@ model Product {
   product_name String
   quantity     Int
   price        Int
-  desc         String
+  desc         String?
   category_id  Int
   category     Category      @relation(fields: [category_id], references: [id])
   created_at   DateTime      @default(now())
