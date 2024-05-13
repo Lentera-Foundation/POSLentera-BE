@@ -43,11 +43,40 @@ export class OrderService {
             payment_amount: payment_amount - (payment_amount * discount) / 100,
             order_detail: {
               createMany: {
-                data: product,
+                data: product.map((item) => ({
+                  product_id: item.product_id,
+                  quantity: item.quantity,
+                })),
+                skipDuplicates: true,
               },
             },
           },
         });
+
+        await Promise.all(
+          product.map(async (item) => {
+            const currentProduct = products.find(
+              (p) => p.id === item.product_id,
+            );
+            if (currentProduct) {
+              const updatedQuantity = currentProduct.quantity - item.quantity;
+              if (updatedQuantity >= 0) {
+                await prisma.product.update({
+                  where: {
+                    id: item.product_id,
+                  },
+                  data: {
+                    quantity: updatedQuantity,
+                  },
+                });
+              } else {
+                throw new Error(
+                  `Not enough quantity available for product ${currentProduct.id}`,
+                );
+              }
+            }
+          }),
+        );
 
         return {
           message: 'Success',
@@ -57,6 +86,7 @@ export class OrderService {
 
       return result;
     } catch (error) {
+      console.log(error);
       return {
         message: 'Something went wrong',
         error: error.message,
