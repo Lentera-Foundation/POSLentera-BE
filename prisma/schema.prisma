@@ -28,7 +28,7 @@ model Product {
   product_name String
   quantity     Int
   price        Int
-  desc         String
+  desc         String?
   category_id  Int
   category     Category      @relation(fields: [category_id], references: [id])
   created_at   DateTime      @default(now())
@@ -38,7 +38,7 @@ model Product {
 model Category {
   id            Int       @id @default(autoincrement())
   category_name String
-  desc          String
+  desc          String?
   Product       Product[]
 }
 

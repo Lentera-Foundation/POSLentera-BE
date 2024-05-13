@@ -1,36 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import {
-  TCreateProductRequest,
-  TCreateProductResponse,
-} from 'src/libs/entities';
-import { TGetProductResponse } from 'src/libs/entities/types/product/get-product.type';
+  TCreateCategoryRequest,
+  TCreateCategoryResponse,
+} from 'src/libs/entities/types/category/create-category.type';
+import { TGetCategoryResponse } from 'src/libs/entities/types/category/get-category.type';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
-export class ProductService {
+export class CategoryService {
   constructor(private readonly prisma: PrismaService) {}
   async create(
-    payload: TCreateProductRequest,
-  ): Promise<TCreateProductResponse> {
+    payload: TCreateCategoryRequest,
+  ): Promise<TCreateCategoryResponse> {
     try {
-      const { product_name, quantity, price, desc, category_id } = payload;
-      await this.prisma.product.create({
+      const { category_name, desc } = payload;
+
+      const category = await this.prisma.category.create({
         data: {
-          product_name,
-          quantity,
-          price,
+          category_name,
           desc,
-          category_id,
         },
       });
 
       return {
-        message: 'Success',
-        id: 1,
-        product_name,
-        desc,
-        quantity,
-        price,
+        message: 'Category created successfully',
+        id: category.id,
+        category_name,
       };
     } catch (error) {
       return {
@@ -40,17 +35,16 @@ export class ProductService {
     }
   }
 
-  async findAll(): Promise<TGetProductResponse> {
+  async findAll(): Promise<TGetCategoryResponse> {
     try {
-      const products = await this.prisma.product.findMany({
+      const categories = await this.prisma.category.findMany({
         orderBy: {
           id: 'desc',
         },
       });
-
       return {
         message: 'Success',
-        data: products,
+        data: categories,
       };
     } catch (error) {
       return {
@@ -60,9 +54,9 @@ export class ProductService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<TGetCategoryResponse> {
     try {
-      const product = await this.prisma.product.findMany({
+      const category = await this.prisma.category.findMany({
         where: {
           id,
         },
@@ -70,7 +64,7 @@ export class ProductService {
 
       return {
         message: 'Success',
-        data: product,
+        data: category,
       };
     } catch (error) {
       return {
@@ -82,22 +76,21 @@ export class ProductService {
 
   async update(
     id: number,
-    payload: TCreateProductRequest,
-  ): Promise<TCreateProductResponse> {
+    payload: TCreateCategoryRequest,
+  ): Promise<TCreateCategoryResponse> {
     try {
-      const { product_name, quantity, price, desc, category_id } = payload;
-      await this.prisma.product.update({
+      const { category_name, desc } = payload;
+
+      await this.prisma.category.update({
         where: {
-          id,
+          id: Number(id),
         },
         data: {
-          product_name,
-          quantity,
-          price,
+          category_name,
           desc,
-          category_id,
         },
       });
+
       return {
         message: 'Success',
       };
@@ -109,9 +102,9 @@ export class ProductService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<TCreateCategoryResponse> {
     try {
-      await this.prisma.product.delete({
+      await this.prisma.category.delete({
         where: {
           id,
         },
