@@ -86,7 +86,6 @@ export class OrderService {
 
       return result;
     } catch (error) {
-      console.log(error);
       return {
         message: 'Something went wrong',
         error: error.message,

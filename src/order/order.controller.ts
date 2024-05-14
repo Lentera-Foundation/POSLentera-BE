@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from 'src/libs/guard';
@@ -28,22 +19,26 @@ export class OrderController {
   }
 
   @Get()
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
   findAll() {
     return this.orderService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderService.findOne(id);
+  @Get(':order_number')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  findOne(@Param('order_number') order_number: string) {
+    return this.orderService.findOne(order_number);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: any) {
-    return this.orderService.update(+id, updateOrderDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() payload: TCreateOrderRequest) {
+  //   return this.orderService.update(+id, payload);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.orderService.remove(+id);
+  // }
 }

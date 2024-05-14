@@ -2,7 +2,12 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNumber, IsString } from 'class-validator';
 
 export class CreateOrderDto {
-  @ApiProperty({ example: [{ product_id: 1, price: 10000, quantity: 2 }] })
+  @ApiProperty({
+    example: [
+      { product_id: 1, quantity: 2 },
+      { product_id: 3, quantity: 4 },
+    ],
+  })
   @IsArray()
   product: Array<{
     product_id: number;
