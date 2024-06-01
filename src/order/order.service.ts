@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CreateOrderDto } from 'src/libs/dto';
+import { TCreateOrderRequest } from 'src/libs/entities';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class OrderService {
   constructor(private readonly prisma: PrismaService) {}
-  async create(payload: CreateOrderDto) {
+  async create(payload: TCreateOrderRequest) {
     try {
       const {
         product,
@@ -52,31 +52,6 @@ export class OrderService {
             },
           },
         });
-
-        await Promise.all(
-          product.map(async (item) => {
-            const currentProduct = products.find(
-              (p) => p.id === item.product_id,
-            );
-            if (currentProduct) {
-              const updatedQuantity = currentProduct.quantity - item.quantity;
-              if (updatedQuantity >= 0) {
-                await prisma.product.update({
-                  where: {
-                    id: item.product_id,
-                  },
-                  data: {
-                    quantity: updatedQuantity,
-                  },
-                });
-              } else {
-                throw new Error(
-                  `Not enough quantity available for product ${currentProduct.id}`,
-                );
-              }
-            }
-          }),
-        );
 
         return {
           message: 'Success',

@@ -4,7 +4,7 @@ export type TGetProductResponse = {
     id?: number;
     product_name?: string;
     desc?: string;
-    quantity?: number;
+    is_ready?: boolean;
     price?: number;
   }>;
   error?: string;
