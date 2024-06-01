@@ -11,8 +11,11 @@ import {
 import { ProductService } from './product.service';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from 'src/libs/guard';
-import { CreateProductDto } from 'src/libs/dto';
-import { TCreateProductRequest } from 'src/libs/entities';
+import { CreateProductDto, DeleteBatchDto } from 'src/libs/dto';
+import {
+  TCreateProductRequest,
+  TDeleteBatchProductRequest,
+} from 'src/libs/entities';
 
 @ApiTags('Product')
 @Controller('product')
@@ -54,5 +57,13 @@ export class ProductController {
   @ApiBearerAuth()
   remove(@Param('id') id: number) {
     return this.productService.remove(+id);
+  }
+
+  @Post('/delete-batch')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiBody({ type: DeleteBatchDto })
+  deleteBatch(@Body() payload: TDeleteBatchProductRequest) {
+    return this.productService.deleteBatch(payload);
   }
 }
