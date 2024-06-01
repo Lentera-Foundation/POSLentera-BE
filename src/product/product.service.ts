@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import {
   TCreateProductRequest,
   TCreateProductResponse,
+  TDeleteBatchProductRequest,
+  TGetProductResponse,
 } from 'src/libs/entities';
-import { TGetProductResponse } from 'src/libs/entities/types/product/get-product.type';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -114,6 +115,27 @@ export class ProductService {
       await this.prisma.product.delete({
         where: {
           id,
+        },
+      });
+
+      return {
+        message: 'Success',
+      };
+    } catch (error) {
+      return {
+        message: 'Something went wrong',
+        error: error.message,
+      };
+    }
+  }
+
+  async deleteBatch(payload: TDeleteBatchProductRequest) {
+    try {
+      await this.prisma.product.deleteMany({
+        where: {
+          id: {
+            in: payload.data,
+          },
         },
       });
 
