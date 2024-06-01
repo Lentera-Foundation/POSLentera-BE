@@ -2,7 +2,7 @@ export type TCreateOrderRequest = {
   product: {
     product_id: number;
     price: number;
-    quantity: number;
+    quantity?: number;
   }[];
   customer_name: string;
   customer_address: string;
