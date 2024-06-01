@@ -124,6 +124,22 @@ export class CategoryService {
 
   async deleteBatch(payload: TDeleteBatchCategoryRequest) {
     try {
+      const relatedProducts = await this.prisma.product.findMany({
+        where: {
+          category_id: {
+            in: payload.data,
+          },
+        },
+      });
+
+      if (relatedProducts.length > 0) {
+        return {
+          message: 'Cannot delete categories',
+          error:
+            'There are products related to one or more categories you are trying to delete.',
+        };
+      }
+
       await this.prisma.category.deleteMany({
         where: {
           id: {
