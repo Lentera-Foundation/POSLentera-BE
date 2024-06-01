@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import {
   TCreateCategoryRequest,
   TCreateCategoryResponse,
-} from 'src/libs/entities/types/category/create-category.type';
-import { TGetCategoryResponse } from 'src/libs/entities/types/category/get-category.type';
+  TDeleteBatchCategoryRequest,
+  TGetCategoryResponse,
+} from 'src/libs/entities/types/category';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -107,6 +108,27 @@ export class CategoryService {
       await this.prisma.category.delete({
         where: {
           id,
+        },
+      });
+
+      return {
+        message: 'Success',
+      };
+    } catch (error) {
+      return {
+        message: 'Something went wrong',
+        error: error.message,
+      };
+    }
+  }
+
+  async deleteBatch(payload: TDeleteBatchCategoryRequest) {
+    try {
+      await this.prisma.category.deleteMany({
+        where: {
+          id: {
+            in: payload.data,
+          },
         },
       });
 

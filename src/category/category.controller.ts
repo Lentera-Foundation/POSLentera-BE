@@ -11,8 +11,9 @@ import {
 import { CategoryService } from './category.service';
 import { TCreateCategoryRequest } from 'src/libs/entities/types/category/create-category.type';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
-import { CreateCategoryDto } from 'src/libs/dto';
+import { CreateCategoryDto, DeleteCategoryBatchDto } from 'src/libs/dto';
 import { JwtGuard } from 'src/libs/guard';
+import { TDeleteBatchCategoryRequest } from 'src/libs/entities/types/category';
 
 @ApiTags('Category')
 @Controller('category')
@@ -54,5 +55,13 @@ export class CategoryController {
   @ApiBearerAuth()
   remove(@Param('id') id: string) {
     return this.categoryService.remove(+id);
+  }
+
+  @Post('/delete-batch')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiBody({ type: DeleteCategoryBatchDto })
+  deleteBatch(@Body() payload: TDeleteBatchCategoryRequest) {
+    return this.categoryService.deleteBatch(payload);
   }
 }
