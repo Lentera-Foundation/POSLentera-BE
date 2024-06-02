@@ -2,6 +2,7 @@ export type TCreateProductRequest = {
   product_name: string;
   status: boolean;
   price: number;
+  equity: number;
   desc?: string;
   category_id: number;
   image_url?: string;
@@ -15,5 +16,6 @@ export type TCreateProductResponse = {
   is_ready?: boolean;
   image_url?: string;
   price?: number;
+  equity?: number;
   error?: string;
 };

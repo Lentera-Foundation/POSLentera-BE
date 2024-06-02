@@ -27,6 +27,7 @@ model Product {
   id           Int           @id @default(autoincrement())
   product_name String
   price        Int
+  equity       Int?
   desc         String?
   is_ready     Boolean?      @default(false)
   category_id  Int
