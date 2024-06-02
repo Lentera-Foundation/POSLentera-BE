@@ -30,6 +30,7 @@ model Product {
   desc         String?
   is_ready     Boolean?      @default(false)
   category_id  Int
+  image_url    String?
   category     Category      @relation(fields: [category_id], references: [id])
   created_at   DateTime      @default(now())
   order        OrderDetail[]
