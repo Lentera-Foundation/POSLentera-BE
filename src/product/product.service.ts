@@ -14,12 +14,20 @@ export class ProductService {
     payload: TCreateProductRequest,
   ): Promise<TCreateProductResponse> {
     try {
-      const { product_name, price, desc, status, category_id, image_url } =
-        payload;
+      const {
+        product_name,
+        price,
+        equity,
+        desc,
+        status,
+        category_id,
+        image_url,
+      } = payload;
       await this.prisma.product.create({
         data: {
           product_name,
           price,
+          equity,
           is_ready: status,
           desc,
           category_id,
@@ -88,8 +96,15 @@ export class ProductService {
     payload: TCreateProductRequest,
   ): Promise<TCreateProductResponse> {
     try {
-      const { product_name, price, desc, status, category_id, image_url } =
-        payload;
+      const {
+        product_name,
+        price,
+        equity,
+        desc,
+        status,
+        category_id,
+        image_url,
+      } = payload;
       await this.prisma.product.update({
         where: {
           id,
@@ -98,6 +113,7 @@ export class ProductService {
           product_name,
           is_ready: status,
           price,
+          equity,
           desc,
           category_id,
           image_url,

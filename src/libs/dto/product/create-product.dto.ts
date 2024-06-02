@@ -14,6 +14,11 @@ export class CreateProductDto {
   @IsNumber()
   price: number;
 
+  @ApiProperty({ example: 5000 })
+  @IsNumber()
+  @IsOptional()
+  equity?: number;
+
   @ApiProperty({ example: 'Product 1 Desc' })
   @IsString()
   @IsOptional()
