@@ -22,4 +22,9 @@ export class CreateProductDto {
   @ApiProperty({ example: 1 })
   @IsNumber()
   category_id: number;
+
+  @ApiProperty({ example: 'https://example.com/image.png' })
+  @IsString()
+  @IsOptional()
+  image_url?: string;
 }
