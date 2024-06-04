@@ -1,6 +1,6 @@
 export type TCreateProductRequest = {
   product_name: string;
-  status: boolean;
+  status: string;
   price: number;
   equity: number;
   desc?: string;
