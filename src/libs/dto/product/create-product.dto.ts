@@ -1,13 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { ProductStatus } from 'src/libs/entities';
 
 export class CreateProductDto {
   @ApiProperty({ example: 'Product 1' })
   @IsString()
   product_name: string;
 
-  @ApiProperty({ example: true })
-  @IsBoolean()
+  @ApiProperty({ example: '1' })
+  @IsString()
+  @IsEnum(ProductStatus)
   status: boolean;
 
   @ApiProperty({ example: 10000 })

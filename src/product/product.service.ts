@@ -23,12 +23,15 @@ export class ProductService {
         category_id,
         image_url,
       } = payload;
+
+      const is_ready = status == '1' ? true : false;
+
       await this.prisma.product.create({
         data: {
           product_name,
           price,
           equity,
-          is_ready: status,
+          is_ready,
           desc,
           category_id,
           image_url,
@@ -40,7 +43,7 @@ export class ProductService {
         id: 1,
         product_name,
         desc,
-        is_ready: status,
+        is_ready,
         price,
       };
     } catch (error) {
@@ -105,13 +108,16 @@ export class ProductService {
         category_id,
         image_url,
       } = payload;
+
+      const is_ready = status ? true : false;
+
       await this.prisma.product.update({
         where: {
           id,
         },
         data: {
           product_name,
-          is_ready: status,
+          is_ready,
           price,
           equity,
           desc,
