@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MailerModule } from './mailer/mailer.module';
 import { CategoryModule } from './category/category.module';
 import { FileModule } from './file/file.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { FileModule } from './file/file.module';
     OrderModule,
     PrismaModule,
     FileModule,
+    DashboardModule,
   ],
   controllers: [],
   providers: [],
