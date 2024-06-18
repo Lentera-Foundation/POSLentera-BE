@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsEnum, IsNumber, IsString } from 'class-validator';
 
 export class CreateOrderDto {
   @ApiProperty({
@@ -24,6 +24,7 @@ export class CreateOrderDto {
 
   @ApiProperty({ example: 'Cash' })
   @IsString()
+  @IsEnum(['Cash', 'Qris'])
   payment_method: string;
 
   @ApiProperty({ example: 0 })
