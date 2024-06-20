@@ -281,4 +281,43 @@ export class DashboardService {
       };
     }
   }
+
+  async getSalesData(payload) {
+    const { category_id, order_by = 'asc' } = payload;
+    const filter = category_id
+      ? {
+          product: {
+            category_id: Number(category_id),
+          },
+        }
+      : {};
+
+    const [product, category] = await Promise.all([
+      this.prisma.orderDetail.findMany({
+        include: {
+          product: true,
+        },
+        where: filter,
+        orderBy: {
+          product: {
+            id: 'asc',
+          },
+        },
+      }),
+
+      this.prisma.category.findMany({
+        where: {
+          id: category_id,
+        },
+      }),
+    ]);
+
+    return {
+      message: 'Success',
+      data: {
+        product,
+        category,
+      },
+    };
+  }
 }
