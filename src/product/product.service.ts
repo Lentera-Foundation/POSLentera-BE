@@ -109,7 +109,7 @@ export class ProductService {
         image_url,
       } = payload;
 
-      const is_ready = status ? true : false;
+      const is_ready = status == '1' ? true : false;
 
       await this.prisma.product.update({
         where: {

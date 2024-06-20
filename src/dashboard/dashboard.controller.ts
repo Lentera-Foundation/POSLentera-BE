@@ -33,4 +33,12 @@ export class DashboardController {
   getPaymentMethod(@Query() payload) {
     return this.dashboardService.getPaymentMethod(payload);
   }
+
+  @Get('/sales-data')
+  // @UseGuards(JwtGuard)
+  // @ApiBearerAuth()
+  @ApiQuery({ type: CardDashboardDto })
+  getSalesData(@Query() payload) {
+    return this.dashboardService.getSalesData(payload);
+  }
 }
