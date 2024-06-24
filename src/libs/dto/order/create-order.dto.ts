@@ -26,8 +26,4 @@ export class CreateOrderDto {
   @IsString()
   @IsEnum(['Cash', 'Qris'])
   payment_method: string;
-
-  @ApiProperty({ example: 0 })
-  @IsNumber()
-  discount: number;
 }
