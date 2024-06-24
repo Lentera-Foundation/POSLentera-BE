@@ -8,6 +8,7 @@ import { MailerModule } from './mailer/mailer.module';
 import { CategoryModule } from './category/category.module';
 import { FileModule } from './file/file.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { GlobalModule } from './global/global.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     PrismaModule,
     FileModule,
     DashboardModule,
+    GlobalModule,
   ],
   controllers: [],
   providers: [],
