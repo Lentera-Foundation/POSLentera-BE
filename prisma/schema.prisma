@@ -50,7 +50,6 @@ model Order {
   customer_name    String
   customer_address String
   payment_method   String
-  discount         Int
   payment_amount   Int
   created_at       DateTime      @default(now())
   order_detail     OrderDetail[]
