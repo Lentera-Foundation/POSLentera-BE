@@ -7,8 +7,13 @@ export class OrderService {
   constructor(private readonly prisma: PrismaService) {}
   async create(payload: TCreateOrderRequest) {
     try {
-      const { product, customer_name, customer_address, payment_method } =
-        payload;
+      const {
+        product,
+        customer_name,
+        customer_address,
+        payment_method,
+        order_method,
+      } = payload;
 
       const result = await this.prisma.$transaction(async (prisma) => {
         const order_number = String((await prisma.order.count()) + 1);
@@ -35,6 +40,7 @@ export class OrderService {
             customer_address,
             payment_method,
             payment_amount: payment_amount + (payment_amount * 11) / 100,
+            order_method,
             order_detail: {
               createMany: {
                 data: product.map((item) => ({

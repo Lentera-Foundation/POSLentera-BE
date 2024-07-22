@@ -10,4 +10,13 @@ export class GlobalService {
       },
     };
   }
+
+  getOrderMethod() {
+    return {
+      message: 'Success',
+      data: {
+        order_method: ['Offline', 'GoFood', 'GrabFood', 'Shopee Food'],
+      },
+    };
+  }
 }
