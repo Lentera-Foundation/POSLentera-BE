@@ -26,4 +26,9 @@ export class CreateOrderDto {
   @IsString()
   @IsEnum(['Cash', 'Qris'])
   payment_method: string;
+
+  @ApiProperty({ example: 'GoFood' })
+  @IsString()
+  @IsEnum(['Offline', 'GoFood', 'GrabFood', 'Shopee Food'])
+  order_method: string;
 }
