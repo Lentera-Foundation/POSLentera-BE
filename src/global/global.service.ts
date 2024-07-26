@@ -19,4 +19,13 @@ export class GlobalService {
       },
     };
   }
+
+  getFilterType() {
+    return {
+      message: 'Success',
+      data: {
+        filter_type: ['Yearly', 'Monthly', 'Daily'],
+      },
+    };
+  }
 }

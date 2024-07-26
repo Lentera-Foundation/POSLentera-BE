@@ -2,7 +2,7 @@ import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from 'src/libs/guard';
-import { CardDashboardDto } from 'src/libs/dto';
+import { CardDashboardDto, SalesTrendDashboardDto } from 'src/libs/dto';
 import { TCardDashboardRequest } from 'src/libs/entities';
 
 @ApiTags('Dashboard')
@@ -10,18 +10,17 @@ import { TCardDashboardRequest } from 'src/libs/entities';
 export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
-  @Get('/cards')
+  @Get('/cards/order-distribution')
   @UseGuards(JwtGuard)
   @ApiBearerAuth()
-  @ApiQuery({ type: CardDashboardDto })
-  getCards(@Query() payload: TCardDashboardRequest) {
-    return this.dashboardService.getCards(payload);
+  getOrderDistribution() {
+    return this.dashboardService.getOrderDistribution();
   }
 
   @Get('/line-chart/sales-trend')
   // @UseGuards(JwtGuard)
   // @ApiBearerAuth()
-  @ApiQuery({ type: CardDashboardDto })
+  @ApiQuery({ type: SalesTrendDashboardDto })
   getSalesTrend(@Query() payload) {
     return this.dashboardService.getSalesTrend(payload);
   }

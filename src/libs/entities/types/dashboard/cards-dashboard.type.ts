@@ -4,12 +4,13 @@ export type TCardDashboardRequest = {
 };
 
 export type TCardDashboardResponse = {
-  message?: string;
+  message: string;
   error?: string;
   data?: {
-    total_order?: number;
-    total_income?: number;
-    total_net_income?: number;
-    average_transaction?: number;
+    totalOrder: number;
+    offlineOrder: number;
+    goFoodOrder: number;
+    grabFoodOrder: number;
+    shopeeFoodOrder: number;
   };
 };
