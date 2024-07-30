@@ -7,5 +7,6 @@ export type TCreateOrderRequest = {
   customer_name: string;
   customer_address: string;
   payment_method: string;
+  order_method: string;
   payment_amount: number;
 };

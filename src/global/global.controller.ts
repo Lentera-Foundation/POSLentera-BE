@@ -11,4 +11,9 @@ export class GlobalController {
   getPaymentMethod() {
     return this.globalService.getPaymentMethod();
   }
+
+  @Get('order-method')
+  getOrderMethod() {
+    return this.globalService.getOrderMethod();
+  }
 }
