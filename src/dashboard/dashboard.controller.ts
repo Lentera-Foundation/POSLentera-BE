@@ -17,17 +17,25 @@ export class DashboardController {
     return this.dashboardService.getOrderDistribution();
   }
 
+  @Get('/line-chart/sales-trend')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiQuery({ type: CardDashboardDto })
+  getSalesTrendByDate(@Query() payload) {
+    return this.dashboardService.getSalesTrendByDate(payload);
+  }
+
   @Get('/line-chart/sales-trend/monthly')
-  // @UseGuards(JwtGuard)
-  // @ApiBearerAuth()
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
   // @ApiQuery({ type: SalesTrendDashboardDto })
   getSalesTrendMonthly() {
     return this.dashboardService.getSalesTrendMonthly();
   }
 
   @Get('/line-chart/sales-trend/yearly')
-  // @UseGuards(JwtGuard)
-  // @ApiBearerAuth()
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
   // @ApiQuery({ type: SalesTrendDashboardDto })
   getSalesTrendYearly() {
     return this.dashboardService.getSalesTrendYearly();
@@ -41,11 +49,10 @@ export class DashboardController {
     return this.dashboardService.getPaymentMethod(payload);
   }
 
-  @Get('/sales-data')
+  @Get('/pie-chart/frequency-order')
   // @UseGuards(JwtGuard)
   // @ApiBearerAuth()
-  @ApiQuery({ type: CardDashboardDto })
-  getSalesData(@Query() payload) {
-    return this.dashboardService.getSalesData(payload);
+  getFrequencyOrder() {
+    return this.dashboardService.getFrequencyOrder();
   }
 }
