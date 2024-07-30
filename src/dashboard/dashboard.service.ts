@@ -72,150 +72,121 @@ export class DashboardService {
     }
   }
 
-  async getSalesTrend(payload) {
+  async getSalesTrendMonthly() {
     try {
-      const { start_date, end_date, filter_type } = payload;
-
-      // Replace with your data fetching logic
       const data = await this.fetchData();
 
-      switch (filter_type) {
-        case 'Yearly': {
-          const years = [
-            ...new Set(
-              data.map((item) => new Date(item.created_at).getFullYear()),
-            ),
-          ];
+      const months = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ];
 
-          const yearlyResult = years.map((year) => {
-            const filteredData = data.filter(
-              (item) => new Date(item.created_at).getFullYear() === year,
-            );
-
-            const total_income = filteredData.reduce(
-              (acc, cur) => acc + cur.payment_amount,
-              0,
-            );
-
-            const average_transaction =
-              filteredData.reduce(
-                (acc, cur) =>
-                  acc +
-                  cur.order_detail.reduce(
-                    (sum, orderDetail) => sum + orderDetail.product.price,
-                    0,
-                  ),
-                0,
-              ) / filteredData.length || 0;
-
-            return {
-              year,
-              total_income,
-              average_transaction,
-            };
+      const monthlyResult = months.map((month) => {
+        const filteredData = data.filter((item) => {
+          const date = new Date(item.created_at);
+          const monthName = date.toLocaleString('default', {
+            month: 'long',
           });
+          return monthName === month;
+        });
 
-          return {
-            message: 'Success',
-            data: yearlyResult,
-          };
-        }
-        case 'Monthly': {
-          const months = [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December',
-          ];
+        const total_income = filteredData.reduce(
+          (acc, cur) => acc + cur.payment_amount,
+          0,
+        );
 
-          const monthlyResult = months.map((month) => {
-            const filteredData = data.filter((item) => {
-              const date = new Date(item.created_at);
-              const monthName = date.toLocaleString('default', {
-                month: 'long',
-              });
-              return monthName === month;
-            });
-
-            const total_income = filteredData.reduce(
-              (acc, cur) => acc + cur.payment_amount,
-              0,
-            );
-
-            const average_transaction =
-              filteredData.reduce(
-                (acc, cur) =>
-                  acc +
-                  cur.order_detail.reduce(
-                    (sum, orderDetail) => sum + orderDetail.product.price,
-                    0,
-                  ),
+        const average_transaction =
+          filteredData.reduce(
+            (acc, cur) =>
+              acc +
+              cur.order_detail.reduce(
+                (sum, orderDetail) => sum + orderDetail.product.price,
                 0,
-              ) / filteredData.length || 0;
+              ),
+            0,
+          ) / filteredData.length || 0;
 
-            return {
-              month,
-              total_income,
-              average_transaction,
-            };
+        return {
+          month,
+          total_income,
+          average_transaction,
+        };
+      });
+
+      return {
+        message: 'Success',
+        data: monthlyResult,
+      };
+    } catch (error) {
+      throw new BadRequestException('Something went wrong', error.message);
+    }
+  }
+
+  async getSalesTrendYearly() {
+    try {
+      const data = await this.fetchData();
+
+      const months = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ];
+
+      const monthlyResult = months.map((month) => {
+        const filteredData = data.filter((item) => {
+          const date = new Date(item.created_at);
+          const monthName = date.toLocaleString('default', {
+            month: 'long',
           });
+          return monthName === month;
+        });
 
-          return {
-            message: 'Success',
-            data: monthlyResult,
-          };
-        }
-        case 'Daily': {
-          const dates = [
-            ...new Set(
-              data.map((item) => new Date(item.created_at).toDateString()),
-            ),
-          ];
+        const total_income = filteredData.reduce(
+          (acc, cur) => acc + cur.payment_amount,
+          0,
+        );
 
-          const dailyResult = dates.map((dateStr) => {
-            const filteredData = data.filter(
-              (item) => new Date(item.created_at).toDateString() === dateStr,
-            );
-
-            const total_income = filteredData.reduce(
-              (acc, cur) => acc + cur.payment_amount,
-              0,
-            );
-
-            const average_transaction =
-              filteredData.reduce(
-                (acc, cur) =>
-                  acc +
-                  cur.order_detail.reduce(
-                    (sum, orderDetail) => sum + orderDetail.product.price,
-                    0,
-                  ),
+        const average_transaction =
+          filteredData.reduce(
+            (acc, cur) =>
+              acc +
+              cur.order_detail.reduce(
+                (sum, orderDetail) => sum + orderDetail.product.price,
                 0,
-              ) / filteredData.length || 0;
+              ),
+            0,
+          ) / filteredData.length || 0;
 
-            return {
-              date: dateStr,
-              total_income,
-              average_transaction,
-            };
-          });
+        return {
+          month,
+          total_income,
+          average_transaction,
+        };
+      });
 
-          return {
-            message: 'Success',
-            data: dailyResult,
-          };
-        }
-        default:
-          throw new BadRequestException('Invalid filter type');
-      }
+      return {
+        message: 'Success',
+        data: monthlyResult,
+      };
     } catch (error) {
       throw new BadRequestException('Something went wrong', error.message);
     }

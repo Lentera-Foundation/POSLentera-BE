@@ -17,12 +17,20 @@ export class DashboardController {
     return this.dashboardService.getOrderDistribution();
   }
 
-  @Get('/line-chart/sales-trend')
+  @Get('/line-chart/sales-trend/monthly')
   // @UseGuards(JwtGuard)
   // @ApiBearerAuth()
-  @ApiQuery({ type: SalesTrendDashboardDto })
-  getSalesTrend(@Query() payload) {
-    return this.dashboardService.getSalesTrend(payload);
+  // @ApiQuery({ type: SalesTrendDashboardDto })
+  getSalesTrendMonthly() {
+    return this.dashboardService.getSalesTrendMonthly();
+  }
+
+  @Get('/line-chart/sales-trend/yearly')
+  // @UseGuards(JwtGuard)
+  // @ApiBearerAuth()
+  // @ApiQuery({ type: SalesTrendDashboardDto })
+  getSalesTrendYearly() {
+    return this.dashboardService.getSalesTrendYearly();
   }
 
   @Get('/doughnut/payment-method')
