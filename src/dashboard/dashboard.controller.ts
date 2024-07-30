@@ -44,15 +44,28 @@ export class DashboardController {
   @Get('/doughnut/payment-method')
   @UseGuards(JwtGuard)
   @ApiBearerAuth()
-  @ApiQuery({ type: CardDashboardDto })
-  getPaymentMethod(@Query() payload) {
-    return this.dashboardService.getPaymentMethod(payload);
+  getPaymentMethod() {
+    return this.dashboardService.getPaymentMethod();
   }
 
   @Get('/pie-chart/frequency-order')
-  // @UseGuards(JwtGuard)
-  // @ApiBearerAuth()
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
   getFrequencyOrder() {
     return this.dashboardService.getFrequencyOrder();
+  }
+
+  @Get('/top-sales/product')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  getProductTopSales() {
+    return this.dashboardService.getProductTopSales();
+  }
+
+  @Get('/top-sales/category')
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  getCategoryTopSales() {
+    return this.dashboardService.getCategoryTopSales();
   }
 }

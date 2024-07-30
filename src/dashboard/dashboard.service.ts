@@ -130,7 +130,7 @@ export class DashboardService {
           ) / filteredData.length || 0;
 
         return {
-          date: date.toISOString().split('T')[0], // Format tanggal menjadi YYYY-MM-DD
+          date: date.toISOString().split('T')[0],
           total_income,
           average_transaction,
         };
@@ -138,7 +138,14 @@ export class DashboardService {
 
       return {
         message: 'Success',
-        data: result,
+        data: {
+          date: result,
+          total_income: result.reduce((acc, cur) => acc + cur.total_income, 0),
+          average_transaction: result.reduce(
+            (acc, cur) => acc + cur.average_transaction,
+            0,
+          ),
+        },
       };
     } catch (error) {
       return {
@@ -201,7 +208,17 @@ export class DashboardService {
 
       return {
         message: 'Success',
-        data: monthlyResult,
+        data: {
+          monthly: monthlyResult,
+          total_income: monthlyResult.reduce(
+            (acc, cur) => acc + cur.total_income,
+            0,
+          ),
+          average_transaction: monthlyResult.reduce(
+            (acc, cur) => acc + cur.average_transaction,
+            0,
+          ),
+        },
       };
     } catch (error) {
       throw new BadRequestException('Something went wrong', error.message);
@@ -246,26 +263,24 @@ export class DashboardService {
 
       return {
         message: 'Success',
-        data: yearlyResult,
+        data: {
+          yearly: yearlyResult,
+          total_income: yearlyResult.reduce(
+            (acc, cur) => acc + cur.total_income,
+            0,
+          ),
+          average_transaction: yearlyResult.reduce(
+            (acc, cur) => acc + cur.average_transaction,
+            0,
+          ),
+        },
       };
     } catch (error) {
       throw new BadRequestException('Something went wrong', error.message);
     }
   }
 
-  async getPaymentMethod(payload: TCardDashboardRequest) {
-    const { start_date, end_date } = payload;
-
-    const dateFilter =
-      start_date && end_date
-        ? {
-            created_at: {
-              gte: new Date(start_date),
-              lte: new Date(end_date),
-            },
-          }
-        : {};
-
+  async getPaymentMethod() {
     try {
       const data = await this.prisma.order.findMany({
         select: {
@@ -274,7 +289,6 @@ export class DashboardService {
           payment_method: true,
           created_at: true,
         },
-        where: dateFilter,
       });
 
       return {
@@ -384,6 +398,82 @@ export class DashboardService {
       };
     } catch (error) {
       throw new BadRequestException('Something went wrong', error.message);
+    }
+  }
+
+  async getProductTopSales() {
+    try {
+      const products = await this.prisma.product.findMany({
+        include: {
+          order: true,
+        },
+      });
+
+      const topSales = products.map((product) => {
+        const totalQuantity = product.order.reduce(
+          (acc, curr) => acc + curr.quantity,
+          0,
+        );
+        return {
+          id: product.id,
+          product_name: product.product_name,
+          total_quantity: totalQuantity,
+        };
+      });
+
+      topSales.sort((a, b) => b.total_quantity - a.total_quantity);
+
+      return {
+        message: 'Success',
+        data: topSales.slice(0, 5),
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        message: 'Something went wrong',
+        error: error.message,
+      };
+    }
+  }
+
+  async getCategoryTopSales() {
+    try {
+      const categories = await this.prisma.category.findMany({
+        include: {
+          Product: {
+            include: {
+              order: true,
+            },
+          },
+        },
+      });
+
+      const topSales = categories.map((category) => {
+        const totalQuantity = category.Product.reduce((acc, product) => {
+          return (
+            acc + product.order.reduce((sum, order) => sum + order.quantity, 0)
+          );
+        }, 0);
+
+        return {
+          id: category.id,
+          category_name: category.category_name,
+          total_quantity: totalQuantity,
+        };
+      });
+
+      topSales.sort((a, b) => b.total_quantity - a.total_quantity);
+
+      return {
+        message: 'Success',
+        data: topSales.slice(0, 5),
+      };
+    } catch (error) {
+      console.error(error);
+      return {
+        message: 'Something went wrong',
+        error: error.message,
+      };
     }
   }
 }
