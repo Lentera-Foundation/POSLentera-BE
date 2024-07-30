@@ -11,9 +11,4 @@ export class SalesTrendDashboardDto {
   @IsDateString()
   @IsOptional()
   end_date?: string;
-
-  @ApiProperty({ example: 'Monthly' })
-  @IsString()
-  @IsEnum(['Yearly', 'Monthly', 'Daily'])
-  filter_type?: string;
 }
