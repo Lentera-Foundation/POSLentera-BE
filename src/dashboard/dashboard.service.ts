@@ -364,7 +364,7 @@ export class DashboardService {
 
       // Define time ranges
       const timeRanges = {
-        '09:00 - 14:00': 0,
+        '01:00 - 14:00': 0,
         '14:00 - 19:00': 0,
         '19:00 - 24:00': 0,
         total: 0,
@@ -380,8 +380,8 @@ export class DashboardService {
         ) {
           const hour = date.getHours();
 
-          if (hour >= 9 && hour < 14) {
-            timeRanges['09:00 - 14:00'] += 1;
+          if (hour >= 1 && hour < 14) {
+            timeRanges['01:00 - 14:00'] += 1;
           } else if (hour >= 14 && hour < 19) {
             timeRanges['14:00 - 19:00'] += 1;
           } else if (hour >= 19 && hour < 24) {
