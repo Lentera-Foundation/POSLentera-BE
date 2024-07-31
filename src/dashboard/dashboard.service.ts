@@ -48,7 +48,7 @@ export class DashboardService {
         this.prisma.order.count({
           where: {
             order_method: {
-              contains: 'ShopeeFood',
+              contains: 'Shopee',
             },
           },
         }),
